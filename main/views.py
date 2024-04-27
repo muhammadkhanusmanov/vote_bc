@@ -14,10 +14,13 @@ from rest_framework.authentication import TokenAuthentication, BasicAuthenticati
 
 class UserView(APIView):
     """Create a new user"""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
     def post(self, request):
-        username = request.POST.get('username',None)
-        password = request.POST.get('password',None)
-        first_name = request.POST.get('first_name',None)
+        data = request.data
+        username = data.get('username',None)
+        password = data.get('password',None)
+        first_name = data.get('first_name',None)
         try:
             user = User.objects.create(
                 username=username,
@@ -29,3 +32,14 @@ class UserView(APIView):
             return Response({'token':token.key},status=status.HTTP_201_CREATED)
         except:
             return Response({'status':'The username already exist'},status=status.HTTP_400_BAD_REQUEST)
+    
+    '''Delete a user'''
+    def delete(self, username):
+        data = self.request.data
+        user_id = data['user_id']
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+            return Response({'status':'The user has been deleted'},status=status.HTTP_200_OK)
+        except:
+            return Response({'status':'The user was not found'},status=status.HTTP_400_BAD_REQUEST)
