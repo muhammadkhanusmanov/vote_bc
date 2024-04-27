@@ -43,3 +43,12 @@ class UserView(APIView):
             return Response({'status':'The user has been deleted'},status=status.HTTP_200_OK)
         except:
             return Response({'status':'The user was not found'},status=status.HTTP_400_BAD_REQUEST)
+
+class UserLogin(models.Model):
+    '''the function for authenticating a user'''
+    authentication_classes = [BasicAuthentication]
+    def post(self, request):
+        user = request.user
+        token = Token.objects.get_or_create(user=user)
+        return Response({'status':True,'token':token.key},status=status.HTTP_200_OK)
+        
