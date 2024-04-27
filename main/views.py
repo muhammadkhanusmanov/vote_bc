@@ -10,7 +10,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
 
-from .models import Polls
+from .models import Polls,Vote
 
 from .serialzer import PollSerializer 
 
@@ -88,4 +88,10 @@ class PollView(APIView):
             return Response({'status':True},status=status.HTTP_200_OK)
         except:
             return Response({'status':False},status=status.HTTP_400_BAD_REQUEST)
+    
+    '''get all polls'''
+    def get(self, request):
+        polls = Polls.objects.all()
+        serializer = PollSerializer(polls, many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
