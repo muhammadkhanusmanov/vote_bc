@@ -12,4 +12,5 @@ urlpatterns = [
     path('user/login/', UserLogin.as_view()),
     path('poll/create/', PollView.as_view()),
     path('poll/delete/', PollView.as_view()),
+    path('allpoll/get/', PollView.as_view()),
 ]
