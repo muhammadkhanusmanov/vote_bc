@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.db.models import F
 from datetime import timedelta
 from datetime import datetime
@@ -61,6 +62,15 @@ class UserLogin(APIView):
         if user.username == 'admin':
             return Response({'status':True,'staff':'admin','token':token.key},status=status.HTTP_200_OK)
         return Response({'status':True,'staff':'user','token':token.key},status=status.HTTP_200_OK)
+
+'''get all users function'''
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_users(request):
+    users = User.objects.all()
+    serialized_users = [{'id': user.id, 'username': user.username, 'firstname': user.first_name} for user in users]
+    return Response(serialized_users)
 
 class PollView(APIView):
     '''Create a new poll'''
