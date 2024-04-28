@@ -198,8 +198,8 @@ def get_all_users(request):
 
 '''Craete a new hujjat'''
 @api_view(['POST','DELETE'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAdminUser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
 def cd_file(request):
     if request.method == 'POST':
         try:
@@ -221,3 +221,29 @@ def cd_file(request):
             return Response({'status': True},status=status.HTTP_200_OK)
         except:
             return Response({'status': False},status=status.HTTP_400_BAD_REQUEST)    
+
+class SaveFile(APIView):
+    def get(self, request, id: str):
+        try:
+            file = Hujjat.objects.get(id=id)
+            file = file.file
+            rs = open(file.path,'rb')
+            return FileResponse(rs)
+        except:
+            return Response({'status': False},status=status.HTTP_400_BAD_REQUEST)
+
+'''Get all files'''
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_files(request):
+    files = Hujjat.objects.all()
+    a = []
+    for file in files:
+        a.append({
+            'id':file.id,
+            'file':f'https://voteappstaff.pythonanywhere.com/save/{file.id}',
+            'description':file.description
+            
+        })
+    return Response(a,status=status.HTTP_200_OK)
