@@ -14,5 +14,6 @@ urlpatterns = [
     path('poll/delete/', PollView.as_view()),
     path('allpoll/get/', PollView.as_view()),
     path('polls/',VoteView.as_view()),
-    path('get/poll/<str:id>',VoteView.as_view())
+    path('get/poll/<str:id>',VoteView.as_view()),
+    path('vote/poll/',VoteView.as_view())
 ]
