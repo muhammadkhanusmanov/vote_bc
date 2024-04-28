@@ -57,7 +57,7 @@ class UserLogin(APIView):
     authentication_classes = [BasicAuthentication]
     def post(self, request):
         user = request.user
-        token = Token.objects.get_or_create(user=user)
+        token,created = Token.objects.get_or_create(user=user)
         if user.username == 'admin':
             return Response({'status':True,'staff':'admin','token':token.key},status=status.HTTP_200_OK)
         return Response({'status':True,'staff':'user','token':token.key},status=status.HTTP_200_OK)
