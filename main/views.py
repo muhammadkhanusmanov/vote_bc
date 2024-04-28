@@ -160,5 +160,25 @@ class VoteView(APIView):
             return Response({'status':'The poll was not found'},status=status.HTTP_400_BAD_REQUEST)
 
 
+class PollStatistics(APIView):
+    '''Get poll statistics'''
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        id = request.data.get('id')
+        poll = Polls.objects.get(id=id)
+        poll_dic = PollSerializer(poll).data
+        votes = {
+            'poll':poll_dic,
+            'poll_statistic':{}
+        }
+        for i in range(1,8):
+            if poll_dic[f'que{i}'] != None:
+                ct = Vote.objects.filter(poll=poll,answer=f'que{i}').count()
+                votes['poll_statistic'][f'que{i}'] = ct
+            else:
+                return Response(votes, status=status.HTTP_200_OK)
+
+
 
 
