@@ -123,7 +123,39 @@ class VoteView(APIView):
                 vote = Vote.objects.get(user=request.user,poll=poll)
                 return Response({'status':'The poll already voted'},status=status.HTTP_100_CONTINUE)
             except:
-                return Response(PollSerializer(poll).data,status=status.HTTP_200_OK)
+                current_time = timezone.localtime(timezone.now())
+                poll_created_at = poll.created_at.replace(tzinfo=None)
+                t = poll_created_at + timedelta(hours=poll.time)
+                current_time_naive = current_time.replace(tzinfo=None)
+                if t > current_time_naive:
+                    rsp = PollSerializer(poll).data
+                    return Response(rsp,status=status.HTTP_200_OK)
+                return Response({'status':'The poll time finished'}, status=status.HTTP_408_REQUEST_TIMEOUT)
+        except:
+            return Response({'status':'The poll was not found'},status=status.HTTP_400_BAD_REQUEST)
+    '''vote the poll by id'''
+    def put(self, request):
+        id = request.data.get('id',None)
+        ans = request.data.get('answer',None)
+        try:
+            poll = Polls.objects.get(id=id)
+            try:
+                vote = Vote.objects.get(user=request.user,poll=poll)
+                return Response({'status':'The poll already voted'},status=status.HTTP_100_CONTINUE)
+            except:
+                current_time = timezone.localtime(timezone.now())
+                poll_created_at = poll.created_at.replace(tzinfo=None)
+                t = poll_created_at + timedelta(hours=poll.time)
+                current_time_naive = current_time.replace(tzinfo=None)
+                if t > current_time_naive:
+                    vote = Vote.objects.create(
+                        user=request.user,
+                        poll=poll,
+                        answer=ans
+                    )
+                    vote.save()
+                    return Response({'status':True},status=status.HTTP_200_OK)
+                return Response({'status':'The poll time finished'}, status=status.HTTP_408_REQUEST_TIMEOUT)
         except:
             return Response({'status':'The poll was not found'},status=status.HTTP_400_BAD_REQUEST)
 
