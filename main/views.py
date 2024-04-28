@@ -58,7 +58,9 @@ class UserLogin(APIView):
     def post(self, request):
         user = request.user
         token = Token.objects.get_or_create(user=user)
-        return Response({'status':True,'token':token.key},status=status.HTTP_200_OK)
+        if user.username == 'admin':
+            return Response({'status':True,'staff':'admin','token':token.key},status=status.HTTP_200_OK)
+        return Response({'status':True,'staff':'user','token':token.key},status=status.HTTP_200_OK)
 
 class PollView(APIView):
     '''Create a new poll'''
