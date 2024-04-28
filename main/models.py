@@ -18,10 +18,16 @@ class Polls(models.Model):
         return self.poll_que
 
 class Vote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes')
     poll = models.ForeignKey(Polls, on_delete=models.CASCADE,related_name='votes')
     answer = models.CharField(max_length=25)
 
     def __str__(self):
         return self.user.username
 
+class Hujjat(models.Model):
+    file = models.FileField(upload_to='files/')
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.description
