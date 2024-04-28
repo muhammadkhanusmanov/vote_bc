@@ -15,7 +15,7 @@ from datetime import timedelta
 from datetime import datetime
 from django.utils import timezone
 
-from .models import Polls,Vote
+from .models import Polls,Vote, Hujjat
 
 from .serialzer import PollSerializer 
 
@@ -63,14 +63,6 @@ class UserLogin(APIView):
             return Response({'status':True,'staff':'admin','token':token.key},status=status.HTTP_200_OK)
         return Response({'status':True,'staff':'user','token':token.key},status=status.HTTP_200_OK)
 
-'''get all users function'''
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def get_all_users(request):
-    users = User.objects.all()
-    serialized_users = [{'id': user.id, 'username': user.username, 'firstname': user.first_name} for user in users]
-    return Response(serialized_users)
 
 class PollView(APIView):
     '''Create a new poll'''
@@ -193,4 +185,39 @@ class PollStatistics(APIView):
 
 
 
+'''get all users function'''
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_users(request):
+    users = User.objects.all()
+    serialized_users = [{'id': user.id, 'username': user.username, 'firstname': user.first_name} for user in users]
+    return Response(serialized_users)
 
+
+
+'''Craete a new hujjat'''
+@api_view(['POST','DELETE'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAdminUser])
+def cd_file(request):
+    if request.method == 'POST':
+        try:
+            file = request.FILES['file']
+            desc = request.data['description']
+            f = Hujjat.objects.create(
+                file = file,
+                description=desc
+            )        
+            f.save()
+            return Response({'status': True},status=status.HTTP_200_OK)
+        except:
+            return Response({'status':False},status=status.HTTP_400_BAD_REQUEST)
+    else:
+        id = request.data['id']
+        try:
+            f = Hujjat.objects.get(id=id)
+            f.delete()
+            return Response({'status': True},status=status.HTTP_200_OK)
+        except:
+            return Response({'status': False},status=status.HTTP_400_BAD_REQUEST)    
