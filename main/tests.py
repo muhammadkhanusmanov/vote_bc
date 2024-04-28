@@ -27,3 +27,30 @@ class UserViewTestCase(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['status'], 'The username already exist')
+
+
+from django.test import TestCase
+from rest_framework.test import APIRequestFactory
+from .views import cd_file
+
+class TestFileUploadAndDelete(TestCase):
+    def test_file_upload(self):
+        factory = APIRequestFactory()
+        file_data = {
+            'file': open('12.docx', 'rb'),  
+            'description': 'Test description'
+        }
+        request = factory.post('/add/file/', file_data, format='multipart')
+        response = cd_file(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['status'], True)
+
+    def test_file_delete(self):
+        factory = APIRequestFactory()
+        file_data = {
+            'id': 1  
+        }
+        request = factory.delete('/delete/file/', file_data, format='json')
+        response = cd_file(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['status'], True)
