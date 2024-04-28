@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
+from django.db.models import F
+from datetime import timedelta
+from datetime import datetime
+from django.utils import timezone
 
 from .models import Polls,Vote
 
@@ -48,7 +52,7 @@ class UserView(APIView):
         except:
             return Response({'status':'The user was not found'},status=status.HTTP_400_BAD_REQUEST)
 
-class UserLogin(models.Model):
+class UserLogin(APIView):
     '''the function for authenticating a user'''
     authentication_classes = [BasicAuthentication]
     def post(self, request):
@@ -94,4 +98,35 @@ class PollView(APIView):
         polls = Polls.objects.all()
         serializer = PollSerializer(polls, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+
+class VoteView(APIView):
+    '''Get polls'''
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        current_time = timezone.localtime(timezone.now())
+        rsp = []
+        polls = Polls.objects.all()
+        for poll in polls:
+            poll_created_at = poll.created_at.replace(tzinfo=None)
+            t = poll_created_at + timedelta(hours=poll.time)
+            current_time_naive = current_time.replace(tzinfo=None)
+            if t > current_time_naive:
+                rsp.append(PollSerializer(poll).data)
+        return Response(rsp, status=status.HTTP_200_OK)
+
+    '''Get a poll by id'''
+    def post(self, request,id:str):
+        try:
+            poll = Polls.objects.get(id=id)
+            try:
+                vote = Vote.objects.get(user=request.user,poll=poll)
+                return Response({'status':'The poll already voted'},status=status.HTTP_100_CONTINUE)
+            except:
+                return Response(PollSerializer(poll).data,status=status.HTTP_200_OK)
+        except:
+            return Response({'status':'The poll was not found'},status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
