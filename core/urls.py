@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from main.views import UserView,UserLogin,PollView,VoteView,PollStatistics,get_all_users,cd_file
+from main.views import UserView,UserLogin,PollView,VoteView,PollStatistics,get_all_users,cd_file,SaveFile,get_files
 
 
 
@@ -19,5 +19,7 @@ urlpatterns = [
     path('poll/statistic/',PollStatistics.as_view()),
     path('get/all/users/',get_all_users),
     path('add/file/',cd_file,name='cre'),
-    path('delete/file/',cd_file,name='del')
+    path('delete/file/',cd_file,name='del'),
+    path('save/<str:id>',SaveFile.as_view()),
+    path('allfiles/',get_files)
 ]
